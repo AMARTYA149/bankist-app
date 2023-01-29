@@ -79,14 +79,10 @@ const displayMovements = function (movements) {
   });
 };
 
-displayMovements(account1.movements);
-
 const calcDisplayBalance = function (movements) {
   const balance = movements.reduce((acc, mov) => acc + mov, 0);
   labelBalance.textContent = `${balance}€`;
 };
-
-calcDisplayBalance(account1.movements);
 
 const createUsernames = function (accs) {
   accs.forEach(function (acc) {
@@ -100,22 +96,22 @@ const createUsernames = function (accs) {
 
 createUsernames(accounts);
 
-const calcDisplaySummary = function (movements) {
-  const incomes = movements
+const calcDisplaySummary = function (account) {
+  const incomes = account.movements
     .filter(mov => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
 
   labelSumIn.textContent = `${incomes}€`;
 
-  const outcomes = movements
+  const outcomes = account.movements
     .filter(mov => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
 
   labelSumOut.textContent = `${Math.abs(outcomes)}`;
 
-  const interest = movements
+  const interest = account.movements
     .filter(mov => mov > 0)
-    .map(deposit => (deposit * 1.2) / 100)
+    .map(deposit => (deposit * account.interestRate) / 100)
     .filter((int, i, arr) => {
       return int >= 1;
     })
@@ -124,88 +120,36 @@ const calcDisplaySummary = function (movements) {
   labelSumInterest.textContent = `${interest}€`;
 };
 
-calcDisplaySummary(account1.movements);
+let currentAccount;
+btnLogin.addEventListener('click', function (e) {
+  //Prevent form from submitting
+  e.preventDefault();
 
-// let movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+  currentAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+  console.log(currentAccount);
 
-// const eurToUsd = 1.1;
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    //Display UI and message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = 100;
 
-// //PIPELINE
-// const totalDepositsUSD = movements
-//   .filter(mov => mov > 0)
-//   .map((mov, i, arr) => {
-//     // console.log(arr);
-//     return mov * eurToUsd;
-//   })
-//   .reduce((acc, mov) => acc + mov, 0);
+    //Clear input fields
+    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginPin.blur();
 
-// console.log(totalDepositsUSD);
+    //Display movements
+    displayMovements(currentAccount.movements);
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// LECTURES
+    //Display balance
+    calcDisplayBalance(currentAccount.movements);
 
-// const currencies = new Map([
-//   ['USD', 'United States dollar'],
-//   ['EUR', 'Euro'],
-//   ['GBP', 'Pound sterling'],
-// ]);
+    //Display Summary
+    calcDisplaySummary(currentAccount);
+  }
+});
 
-// const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
-
-// // [5,2,4,1,15,8,3]
-// // [16,6,10,5,6,1,4]
-// const dogArray = [5, 2, 4, 1, 15, 8, 3];
-
-// var calcHumanAge = function () {
-//   return function (age) {
-//     return age <= 2 ? age * 2 : 16 + age * 4;
-//   };
-// };
-
-// // function callPrint() {
-// //   console.log('chkjlc');
-// // }
-
-// // callPrint();
-
-// const filterDogAge = function () {
-//   return function (age) {
-//     return age >= 18 ? true : false;
-//   };
-// };
-
-// function challende(array) {
-//   const result = array
-//     .map(function (age) {
-//       if (age <= 2) {
-//         age *= 2;
-//       } else {
-//         age = 16 + age * 4;
-//       }
-//       return age;
-//     })
-//     .filter(function (age) {
-//       return age < 18 ? false : true;
-//     })
-//     .reduce((acc, item) => {
-//       return (acc += item);
-//     }, 0);
-//   console.log(result);
-//   console.log(`${result / array.length}`);
-// }
-
-// function challende(array) {
-//   const result = array
-//     .map(calcHumanAge())
-//     .filter(filterDogAge())
-//     .reduce((acc, item) => {
-//       return (acc += item);
-//     }, 0);
-//   console.log(result);
-//   console.log(`${result / array.length}`);
-// }
-
-// challende([5, 2, 4, 1, 15, 8, 3]);
-
-/////////////////////////////////////////////////
+//Lectures
